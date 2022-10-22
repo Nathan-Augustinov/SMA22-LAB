@@ -32,13 +32,13 @@ public class MainIntentActivity extends Activity {
                 startActivity(secondIntent);
                 break;
             case R.id.thirdButton:
-                Intent thirdIntent = new Intent();
+                Intent thirdIntent = new Intent(MainIntentActivity.this, IntentFilterActivity.class);
                 thirdIntent.setAction("MSA.LAUNCH");
                 thirdIntent.setData(Uri.parse("http://www.google.com"));
                 startActivity(thirdIntent);
                 break;
             case R.id.fourthButton:
-                Intent fourthIntent = new Intent();
+                Intent fourthIntent = new Intent(MainIntentActivity.this, IntentFilterActivity.class);
                 fourthIntent.setAction("MSA.LAUNCH");
                 fourthIntent.setData(Uri.parse("tel:00401213456"));
                 startActivity(fourthIntent);

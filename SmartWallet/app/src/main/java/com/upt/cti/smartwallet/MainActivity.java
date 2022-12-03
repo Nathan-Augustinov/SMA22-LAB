@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
 
         tStatus = findViewById(R.id.tStatus);
-        eSearch = findViewById(R.id.eSearch);
+//        eSearch = findViewById(R.id.eSearch);
         eIncome = findViewById(R.id.eIncome);
         eExpenses = findViewById(R.id.eExpenses);
         mSpinner = findViewById(R.id.mSpinner);
@@ -91,15 +91,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void clicked(View view) {
         switch(view.getId()) {
-            case R.id.bSearch:
-                if(!eSearch.getText().toString().isEmpty()) {
-                    currentMonth = eSearch.getText().toString().toLowerCase();
-                    tStatus.setText("Searching...");
-                    createNewDBListener();
-                } else {
-                    Toast.makeText(this, "Search field may not be empty", Toast.LENGTH_LONG).show();
-                }
-                break;
+//            case R.id.bSearch:
+//                if(!eSearch.getText().toString().isEmpty()) {
+//                    currentMonth = eSearch.getText().toString().toLowerCase();
+//                    tStatus.setText("Searching...");
+//                    createNewDBListener();
+//                } else {
+//                    Toast.makeText(this, "Search field may not be empty", Toast.LENGTH_LONG).show();
+//                }
+//                break;
             case R.id.bUpdate:
                 if(databaseReference != null && currentMonth != null) {
                     if(!eIncome.getText().toString().isEmpty()) {

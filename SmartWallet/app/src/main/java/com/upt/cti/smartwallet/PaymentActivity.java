@@ -1,7 +1,11 @@
 package com.upt.cti.smartwallet;
 
+import static com.upt.cti.smartwallet.AddPaymentActivity.getCurrentTime;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -28,7 +32,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     private DatabaseReference databaseReference;
     private static final String dbLink = "https://smart-wallet-1e99c-default-rtdb.europe-west1.firebasedatabase.app/" ;
-    private int currentMonth;
+    private int currentMonth, timestampMonth;
     private List<Payment> payments = new ArrayList<>();
 
     @Override
@@ -44,14 +48,49 @@ public class PaymentActivity extends AppCompatActivity {
         final PaymentAdapter adapter = new PaymentAdapter(this, payments, R.layout.item_payment);
         listPayments.setAdapter(adapter);
 
-
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        currentMonth = Month.monthFromTimestamp(timestamp.toString());
+        timestampMonth = Month.monthFromTimestamp(timestamp.toString());
 
-        tStatus.setText("Loading payments for " + Month.intToMonthName(currentMonth) + " ...");
+        tStatus.setText("Loading payments for " + Month.intToMonthName(timestampMonth) + " ...");
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance(dbLink);
         databaseReference = database.getReference();
+
+        SharedPreferences pref = getSharedPreferences("MyPref", 0); // 0 - for private mode
+        currentMonth = pref.getInt("month", -1);
+
+        if(currentMonth == -1)
+        {
+            currentMonth = Month.monthFromTimestamp(getCurrentTime());
+        }
+
+
+
+        bPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(currentMonth == 0){
+                    currentMonth = 12;
+                }
+                currentMonth = currentMonth - 1;
+                tStatus.setText("Found " + payments.size() + " payments for " + Month.intToMonthName(currentMonth) + ".");
+                pref.edit().putInt("month", currentMonth).apply();
+                recreate();
+            }
+        });
+
+        bNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(currentMonth == 11){
+                    currentMonth = -1;
+                }
+                currentMonth = currentMonth + 1;
+                tStatus.setText("Found " + payments.size() + " payments for " + Month.intToMonthName(currentMonth) + ".");
+                pref.edit().putInt("month", currentMonth).apply();
+                recreate();
+            }
+        });
 
 
         databaseReference.child("wallet").addChildEventListener(new ChildEventListener() {
@@ -60,10 +99,9 @@ public class PaymentActivity extends AppCompatActivity {
                 try {
                     Payment payment = snapshot.getValue(Payment.class);
                     payment.timestamp = snapshot.getKey();
-                    currentMonth = Month.monthFromTimestamp(payment.timestamp);
-                    System.out.println(payment.timestamp + " " + payment.getName() + " " + payment.getCost() + " " + payment.getType());
+                    timestampMonth = Month.monthFromTimestamp(payment.timestamp);
 
-                    if (payment.timestamp != null) {
+                    if (payment.timestamp != null && currentMonth == timestampMonth) {
                         payments.add(payment);
                         adapter.notifyDataSetChanged();
                     }
@@ -79,7 +117,7 @@ public class PaymentActivity extends AppCompatActivity {
                 try {
                     Payment payment = snapshot.getValue(Payment.class);
                     payment.timestamp = snapshot.getKey();
-                    currentMonth = Month.monthFromTimestamp(payment.timestamp);
+                    timestampMonth = Month.monthFromTimestamp(payment.timestamp);
                     if (payments.contains(payment))
                         payments.set(payments.indexOf(payment), payment);
                     else
@@ -97,7 +135,7 @@ public class PaymentActivity extends AppCompatActivity {
                 try {
                     Payment payment = snapshot.getValue(Payment.class);
                     payment.timestamp = snapshot.getKey();
-                    currentMonth = Month.monthFromTimestamp(payment.timestamp);
+                    timestampMonth = Month.monthFromTimestamp(payment.timestamp);
                     payments.remove(payment);
                     adapter.notifyDataSetChanged();
 
